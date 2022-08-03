@@ -15,7 +15,7 @@ def __manipulations_with_client(client):
         command = input("Введите команду(вы подключены к машине): ")
         if command.lower() == "exit":
             client.close()
-            return None
+            return
         else:
             try:
                 stdin, stdout, stderr = client.exec_command(command)
@@ -29,13 +29,13 @@ def __manipulations_with_client(client):
             except:
                 print("Произошла ошибка в выполнении команды, закрываю соединение...")
                 client.close()
-                return None
+                return
 
 
 def connect(*args):  # 4 аргумента(ip, name, password, port)
     if len(args) == 0:
         print("Функция не может не принимать параметров")
-        return None
+        return
     cur = None
     if len(args) != 1 and len(args) < 4:
         print("Вы указали не все параметры, выполняю поиск по IP в имеющихся машинах")
@@ -65,7 +65,7 @@ def main():
             command = input("Вводите команду:").split()
             if command[0] == "exit":
                 print("Завершение работы...")
-                return None
+                return
             func_name = command[0].lower()
             command.pop(0)
             args = " ".join(command)
