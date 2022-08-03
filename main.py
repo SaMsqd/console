@@ -1,4 +1,23 @@
-import paramiko, time
+import paramiko, time, socket
+
+
+ports = {
+    20: "FTP-DATA",
+    21: "FTP",
+    22: "SSH",
+    23: "TELNET",
+    25: "SMTP",
+    66: "SQL-NET",
+    69: "TFTP",
+    80: "HTTP",
+    81: "HTTP",
+    115: "SFTP",
+    118: "SQL-services",
+    143: "IMAP",
+    150: "SQL-NET",
+    8888: "Web-interface"
+}
+
 
 machines = (
     {
@@ -8,6 +27,22 @@ machines = (
         "port": 22,
     },
 )
+
+
+def scan_ports(*args):
+    sock = socket.socket()
+    for port in ports:
+        try:
+            sock.connect((args[0], port))
+            print(f"Порт {port} открыт, его роль: {ports[port]}")
+        except:
+            if len(args) == 2 and (args[1].lower() == "true" or args[1].lower() == "t"):
+                print(f"Порт {port} закрыт")
+
+
+
+def scan_network(scan_port=False):
+    pass
 
 
 def __manipulations_with_client(client):
@@ -56,6 +91,8 @@ def connect(*args):  # 4 аргумента(ip, name, password, port)
 
 functions = {
     "connect": connect,
+    "scanport": scan_ports,
+    "scannetwork": scan_network,
 }
 
 
@@ -68,7 +105,7 @@ def main():
                 return
             func_name = command[0].lower()
             command.pop(0)
-            args = " ".join(command)
+            args = command
             if len(args) == 0:
                 functions[func_name]()
             else:
