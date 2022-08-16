@@ -1,4 +1,4 @@
-import paramiko, time, socket
+import paramiko, time, socket, os
 
 
 
@@ -31,6 +31,7 @@ machines = (
 
 
 def scan_ports(*args):  # IP
+    os.system("cls")
     sock = socket.socket()
     for port in ports:
         try:
@@ -46,30 +47,40 @@ def scan_network(scan_port=False):
     pass
 
 
+def __client_exec(client, command):
+    try:
+        if command == "cd":
+            stdin, stdout, stderr = client.exec_command("cd ..")
+        else:
+            stdin, stdout, stderr = client.exec_command(command)
+        data = str(stdout.read() + stderr.read())
+        data = list(data)
+        data.pop(0)
+        data.pop(-1)
+        data.pop(0)
+        data = "".join(data).split("\\n")
+        if command == "pwd":
+            return "".join(data)
+        else:
+            if data != None:
+                print(*data, sep="\n")
+            else:
+                print("\n")
+    except:
+        print("Произошла ошибка в выполнении команды, закрываю соединение...")
+        client.close()
+        return
+
+
 def __manipulations_with_client(client):
     while True:
-        command = input("Введите команду(вы подключены к машине): ")
+        dir = __client_exec(client, "pwd")
+        command = input(f"{dir}: ")
         if command.lower() == "exit":
             client.close()
             return
-        elif command.lower() == "shutdown" or command.lower() == "reboot":
-            print("Вы выключили/перезагрузили машину, закрываю подключение")
-            client.close()
-            return
         else:
-            try:
-                stdin, stdout, stderr = client.exec_command(command)
-                data = str(stdout.read() + stderr.read())
-                data = list(data)
-                data.pop(0)
-                data.pop(-1)
-                data.pop(0)
-                data = "".join(data).split("\\n")
-                print(*data, sep="\n")
-            except:
-                print("Произошла ошибка в выполнении команды, закрываю соединение...")
-                client.close()
-                return
+            print(__client_exec(client, command))
 
 
 def connect(*args):  # 4 аргумента(ip, name, password, port)
@@ -108,20 +119,25 @@ def main():
             command = input("Вводите команду:").split()
             if command[0] == "exit":
                 print("Завершение работы...")
+                os.system("color 7")
                 return
-            func_name = command[0].lower()
-            command.pop(0)
-            args = command
-            if len(args) == 0:
-                functions[func_name]()
+            elif command[0] == "clear":
+                os.system("cls")
             else:
-                functions[func_name](*args)
+                func_name = command[0].lower()
+                command.pop(0)
+                args = command
+                if len(args) == 0:
+                    functions[func_name]()
+                else:
+                    functions[func_name](*args)
         except:
             print("Произошла ошибка")
 
 
 if __name__ == "__main__":
+    os.system("color 2")
     print("-----    WELCOME TO CONSOLE v0.1    -----")
     time.sleep(1)
-    print("\n" * 10)
+    os.system("cls")
     main()
