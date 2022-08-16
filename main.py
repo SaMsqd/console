@@ -1,6 +1,7 @@
 import paramiko, time, socket
 
 
+
 ports = {
     20: "FTP-DATA",
     21: "FTP",
@@ -29,7 +30,7 @@ machines = (
 )
 
 
-def scan_ports(*args):
+def scan_ports(*args):  # IP
     sock = socket.socket()
     for port in ports:
         try:
@@ -49,6 +50,10 @@ def __manipulations_with_client(client):
     while True:
         command = input("Введите команду(вы подключены к машине): ")
         if command.lower() == "exit":
+            client.close()
+            return
+        elif command.lower() == "shutdown" or command.lower() == "reboot":
+            print("Вы выключили/перезагрузили машину, закрываю подключение")
             client.close()
             return
         else:
@@ -72,21 +77,22 @@ def connect(*args):  # 4 аргумента(ip, name, password, port)
         print("Функция не может не принимать параметров")
         return
     cur = None
-    if len(args) != 1 and len(args) < 4:
-        print("Вы указали не все параметры, выполняю поиск по IP в имеющихся машинах")
     if len(args) < 4:
+        print("Вы указали не все параметры, выполняю поиск по IP в имеющихся машинах")
         for machin in machines:
             if machin["ip"] == args[0]:
                 cur = machin
+                break
     elif len(args) == 4:
         cur["ip"] = args[0]
         cur["name"] = args[1]
         cur["password"] = args[2]
         cur["port"] = args[3]
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname=cur["ip"], username=cur["name"], password=cur["password"], port=cur["port"])
-    __manipulations_with_client(client)
+    if cur != None:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(hostname=cur["ip"], username=cur["name"], password=cur["password"], port=cur["port"])
+        __manipulations_with_client(client)
 
 
 functions = {
@@ -109,7 +115,7 @@ def main():
             if len(args) == 0:
                 functions[func_name]()
             else:
-                functions[func_name](args)
+                functions[func_name](*args)
         except:
             print("Произошла ошибка")
 
