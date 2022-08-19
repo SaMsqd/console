@@ -1,5 +1,5 @@
 # TODO: сделать нормальное управление каталогами удалённой машины(paramiko, разобраться)
-import paramiko, time, socket, os, subprocess
+import paramiko, time, socket, os, subprocess, threading
 
 ports = {
     20: "FTP-DATA",
@@ -31,20 +31,29 @@ machines = (
 def ping(*args):  # ip, times
     try:
         if len(args) == 2:
-            args = "ping " + "-n " + args[1] + " " + args[0]
-            con_out = subprocess.check_output(args, shell=True).decode('cp866')
+            arg = "ping " + "-n " + args[1] + " " + args[0]
+            con_out = subprocess.check_output(arg, shell=True).decode('cp866')
             print(str(con_out))
-        elif len(args) == 1:
-            args = "ping " + "-n 1 " + args[0]
-            con_out = subprocess.check_output(args, shell=True).decode('cp866')
-            print(str(con_out))
+        elif len(args) != 0:
+            arg = "ping " + "-n 1 " + args[0]
+            con_out = str(subprocess.check_output(arg, shell=True).decode('cp866'))
+            if "недоступен" not in con_out and "превышен" not in con_out:
+                if len(args) == 3:
+                    return 1
+                print(f"{args[0]} доступен")
+            else:
+                if len(args) == 3:
+                    return 0
+                print(f"{args[0]} недоступен")
         else:
             print("Не указано достаточно аргументов")
     except:
+        if len(args) == 3:
+            return 0
         print(f"Машина не в сети/указан не правильный ip")
 
 
-def scan_ports(*args):  # IP
+def scan_ports(*args):  # IP, True/False(показывать ли состояние всех портов)
     os.system("cls")
     sock = socket.socket()
     for port in ports:
@@ -56,8 +65,17 @@ def scan_ports(*args):  # IP
                 print(f"Порт {port} закрыт")
 
 
-def scan_network(scan_port=False):
-    pass
+def scan_network(*args): # Example: 192.168.0.1-255 True        (ip, провести сканирование портов?)
+    ip = args[0].split(".")
+    lenght = ip.pop(-1).split("-")
+    for i in range(int(lenght[0]), int(lenght[1]) + 1):
+        cur = ".".join(ip)+"." + str(i)
+        response = bool(ping(cur, 1, True))
+        if len(args) == 2 and response and bool(args[1]):
+            print(f"Машина {ip} в сети\nПроверка её портов:\n\n")
+            scan_ports(cur)
+        elif response:
+            print(f"Машина {cur} в сети")
 
 
 def __client_exec(client, command):
@@ -124,6 +142,7 @@ functions = {
     "scanport": scan_ports,
     "scannetwork": scan_network,
     "ping": ping,
+    "scan": scan_network,
 }
 
 
