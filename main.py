@@ -55,24 +55,29 @@ def ping(*args):  # ip, times
 
 def scan_ports(*args):  # IP, True/False(показывать ли состояние всех портов)
     sock = socket.socket()
+    result = ""
     for port in ports:
         try:
             sock.connect((args[0], port))
-            print(f"Порт {port} открыт, его роль: {ports[port]}")
+            if len(args) != 3:
+                print(f"Порт {port} открыт, его роль: {ports[port]}")
+            else:
+                result += "Порт " + str(port) + " открыт, его роль: " + str(ports[port]) + "\n"
         except:
             if len(args) == 2 and (args[1].lower() == "true" or args[1].lower() == "t"):
                 print(f"Порт {port} закрыт")
-
+    return result
 
 def __scan_ip(first, second, ip, show=False):
     for i in range(first, second + 1):
         cur = ".".join(ip)+"." + str(i)
         response = bool(ping(cur, 1, True))
         if response and show:
-            print(f"Машина {ip} в сети\nПроверка её портов:\n\n")
-            scan_ports(cur)
+            recv = scan_ports(cur, False, 1)
+            print(f"Машина {cur} в сети\nОткрытые порты:\n{recv}")
         elif response:
             print(f"Машина {cur} в сети")
+
 
 
 def scan_network(*args): # Example: 192.168.0.1-255 True        (ip, провести сканирование портов?)
@@ -82,11 +87,11 @@ def scan_network(*args): # Example: 192.168.0.1-255 True        (ip, прове�
     ran = (int(lenght[1]) - int(lenght[0])) // 4
     first = int(lenght[0])
     for i in range(4):
-        threads.append(threading.Thread(target=__scan_ip, args=(first + ran * i, first + ran * (i+1)+2, ip)))
+        threads.append(threading.Thread(target=__scan_ip, args=(first + ran * i, first + ran * (i+1)+2, ip, args[1])))
         threads[i].start()
     for i in range(4):
         threads[i].join()
-    print("\nСканирование закончено")
+    print("\n\nСканирование закончено")
 
 
 def __client_exec(client, command):
@@ -180,6 +185,7 @@ def main():
             command = input("Вводите команду:").split()
             if command[0] == "exit":
                 print("Завершение работы...")
+                os.system("cls")
                 os.system("color 7")
                 return
             elif command[0] == "clear":
