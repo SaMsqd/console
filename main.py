@@ -54,7 +54,6 @@ def ping(*args):  # ip, times
 
 
 def scan_ports(*args):  # IP, True/False(показывать ли состояние всех портов)
-    os.system("cls")
     sock = socket.socket()
     for port in ports:
         try:
@@ -65,17 +64,29 @@ def scan_ports(*args):  # IP, True/False(показывать ли состоя�
                 print(f"Порт {port} закрыт")
 
 
-def scan_network(*args): # Example: 192.168.0.1-255 True        (ip, провести сканирование портов?)
-    ip = args[0].split(".")
-    lenght = ip.pop(-1).split("-")
-    for i in range(int(lenght[0]), int(lenght[1]) + 1):
+def __scan_ip(first, second, ip, show=False):
+    for i in range(first, second + 1):
         cur = ".".join(ip)+"." + str(i)
         response = bool(ping(cur, 1, True))
-        if len(args) == 2 and response and bool(args[1]):
+        if response and show:
             print(f"Машина {ip} в сети\nПроверка её портов:\n\n")
             scan_ports(cur)
         elif response:
             print(f"Машина {cur} в сети")
+
+
+def scan_network(*args): # Example: 192.168.0.1-255 True        (ip, провести сканирование портов?)
+    threads = []
+    ip = args[0].split(".")
+    lenght = ip.pop(-1).split("-")
+    ran = (int(lenght[1]) - int(lenght[0])) // 4
+    first = int(lenght[0])
+    for i in range(4):
+        threads.append(threading.Thread(target=__scan_ip, args=(first + ran * i, first + ran * (i+1)+2, ip)))
+        threads[i].start()
+    for i in range(4):
+        threads[i].join()
+    print("\nСканирование закончено")
 
 
 def __client_exec(client, command):
