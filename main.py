@@ -148,12 +148,29 @@ def connect(*args):  # 4 аргумента(ip, name, password, port)
         __manipulations_with_client(client)
 
 
+def help(func_name=None):
+    if func_name == None:
+        for func in functions:
+            if funcs_info.get(func) != None:
+                print(func, ": ", funcs_info[func], sep="")
+        print("\n" * 3)
+        return
+    print(funcs_info[func_name])
+
+
+funcs_info = {
+    "connect": "Функция для подключения к удалённой машине, аргументы:\n!ip, name, password, port",
+    "scanport": "Функция для сканирования активных портов, аргументы:\n!ip, (показывать все порты?)",
+    "ping": "Функция для проверки активности конкретной виртуальной машины, аргументы:\n!ip, times",
+    "scan": "Функция для сканирования активных машин, аргументы:\n!ip(192.168.0.1-255), (провести сканирование портов?)",
+}
 functions = {
     "connect": connect,
     "scanport": scan_ports,
     "scannetwork": scan_network,
     "ping": ping,
     "scan": scan_network,
+    "help": help,
 }
 
 
@@ -180,8 +197,17 @@ def main():
 
 
 if __name__ == "__main__":
+    os.system("cls")
     os.system("color 2")
-    print("-----    WELCOME TO CONSOLE v0.1    -----")
-    time.sleep(1)
+    print("""
+ __          __  _                            _           _____                      _               ___   _____ 
+ \ \        / / | |                          | |         / ____|                    | |             / _ \ | ____|
+  \ \  /\  / ___| | ___ ___  _ __ ___   ___  | |_ ___   | |     ___  _ __  ___  ___ | | ___  __   _| | | || |__  
+   \ \/  \/ / _ | |/ __/ _ \| '_ ` _ \ / _ \ | __/ _ \  | |    / _ \| '_ \/ __|/ _ \| |/ _ \ \ \ / | | | ||___ \ 
+    \  /\  |  __| | (_| (_) | | | | | |  __/ | || (_) | | |___| (_) | | | \__ | (_) | |  __/  \ V /| |_| _ ___) |
+     \/  \/ \___|_|\___\___/|_| |_| |_|\___|  \__\___/   \_____\___/|_| |_|___/\___/|_|\___|   \_/  \___(_|____/ 
+     \n\n\t\t\t\t\t\t Creator: SaM
+    """)
+    time.sleep(1.5)
     os.system("cls")
     main()
