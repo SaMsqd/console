@@ -1,5 +1,5 @@
-import paramiko, time, socket, os
-
+# TODO: сделать нормальное управление каталогами удалённой машины(paramiko, разобраться)
+import paramiko, time, socket, os, subprocess
 
 
 ports = {
@@ -28,6 +28,10 @@ machines = (
         "port": 22,
     },
 )
+def ping(host="8.8.8.8"):
+    args = "ping " + "-n 1 " + host
+    con_out = subprocess.check_output(args, shell=True).decode('cp866')
+    print(str(con_out))
 
 
 def scan_ports(*args):  # IP
@@ -110,6 +114,7 @@ functions = {
     "connect": connect,
     "scanport": scan_ports,
     "scannetwork": scan_network,
+    "ping": ping,
 }
 
 
