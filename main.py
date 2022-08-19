@@ -1,7 +1,6 @@
 # TODO: сделать нормальное управление каталогами удалённой машины(paramiko, разобраться)
 import paramiko, time, socket, os, subprocess
 
-
 ports = {
     20: "FTP-DATA",
     21: "FTP",
@@ -19,7 +18,6 @@ ports = {
     8888: "Web-interface"
 }
 
-
 machines = (
     {
         "ip": "192.168.0.90",
@@ -28,10 +26,22 @@ machines = (
         "port": 22,
     },
 )
-def ping(host="8.8.8.8"):
-    args = "ping " + "-n 1 " + host
-    con_out = subprocess.check_output(args, shell=True).decode('cp866')
-    print(str(con_out))
+
+
+def ping(*args):  # ip, times
+    try:
+        if len(args) == 2:
+            args = "ping " + "-n " + args[1] + " " + args[0]
+            con_out = subprocess.check_output(args, shell=True).decode('cp866')
+            print(str(con_out))
+        elif len(args) == 1:
+            args = "ping " + "-n 1 " + args[0]
+            con_out = subprocess.check_output(args, shell=True).decode('cp866')
+            print(str(con_out))
+        else:
+            print("Не указано достаточно аргументов")
+    except:
+        print(f"Машина не в сети/указан не правильный ip")
 
 
 def scan_ports(*args):  # IP
@@ -44,7 +54,6 @@ def scan_ports(*args):  # IP
         except:
             if len(args) == 2 and (args[1].lower() == "true" or args[1].lower() == "t"):
                 print(f"Порт {port} закрыт")
-
 
 
 def scan_network(scan_port=False):
