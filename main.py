@@ -15,7 +15,8 @@ ports = {
     118: "SQL-services",
     143: "IMAP",
     150: "SQL-NET",
-    8888: "Web-interface"
+    8888: "Web-interface",
+    9090: "Local-server"
 }
 
 machines = (
@@ -84,14 +85,14 @@ def scan_network(*args): # Example: 192.168.0.1-255 True        (ip, прове�
     threads = []
     ip = args[0].split(".")
     lenght = ip.pop(-1).split("-")
-    ran = (int(lenght[1]) - int(lenght[0])) // 4
-    first = int(lenght[0])
-    for i in range(4):
-        threads.append(threading.Thread(target=__scan_ip, args=(first + ran * i, first + ran * (i+1)+2, ip, args[1])))
+    for i in range(int(lenght[1])-int(lenght[0])+1):
+        if len(args) == 2:
+            threads.append(threading.Thread(target=__scan_ip, args=(i, i, ip, args[1])))
+        else:
+            threads.append(threading.Thread(target=__scan_ip, args=(i, i, ip)))
         threads[i].start()
-    for i in range(4):
+    for i in range(100):
         threads[i].join()
-    print("\n\nСканирование закончено")
 
 
 def __client_exec(client, command):
@@ -203,6 +204,7 @@ def main():
 
 
 if __name__ == "__main__":
+    scan_network("192.168.0.1-255")
     os.system("cls")
     os.system("color 2")
     print("""
