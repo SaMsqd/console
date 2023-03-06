@@ -204,7 +204,6 @@ def main():
 
 
 if __name__ == "__main__":
-    scan_network("192.168.0.1-255")
     os.system("cls")
     os.system("color 2")
     print("""
