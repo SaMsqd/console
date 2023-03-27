@@ -69,6 +69,7 @@ def scan_ports(*args):  # IP, True/False(показывать ли состоя�
                 print(f"Порт {port} закрыт")
     return result
 
+
 def __scan_ip(first, second, ip, show=False):
     for i in range(first, second + 1):
         cur = ".".join(ip)+"." + str(i)
@@ -80,8 +81,7 @@ def __scan_ip(first, second, ip, show=False):
             print(f"Машина {cur} в сети")
 
 
-
-def scan_network(*args): # Example: 192.168.0.1-255 True        (ip, провести сканирование портов?)
+def scan_network(*args):    # Example: 192.168.0.1-255 True   (ip, провести сканирование портов?)
     threads = []
     ip = args[0].split(".")
     lenght = ip.pop(-1).split("-")
@@ -147,7 +147,7 @@ def connect(*args):  # 4 аргумента(ip, name, password, port)
         cur["name"] = args[1]
         cur["password"] = args[2]
         cur["port"] = args[3]
-    if cur != None:
+    if cur is not None:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.connect(hostname=cur["ip"], username=cur["name"], password=cur["password"], port=cur["port"])
@@ -155,23 +155,24 @@ def connect(*args):  # 4 аргумента(ip, name, password, port)
 
 
 def help(func_name=None):
-    if func_name == None:
+    print("\n")
+    if func_name is None:
         for func in functions:
-            if funcs_info.get(func) != None:
-                print(func, ": ", funcs_info[func], sep="")
-        print("\n" * 3)
+            if funcs_info.get(func) is not None:
+                print(func, ": ", funcs_info[func], "\n", sep="")
+        print("\n" * 1)
         return
-    print(funcs_info[func_name])
+    print(funcs_info[func_name], "\n")
 
 
 funcs_info = {
-    "connect": "Функция для подключения к удалённой машине, аргументы:\n!ip, name, password, port",
+    # "connect": "Функция для подключения к удалённой машине, аргументы:\n!ip, name, password, port". Не реализовано
     "scanport": "Функция для сканирования активных портов, аргументы:\n!ip, (показывать все порты?)",
     "ping": "Функция для проверки активности конкретной виртуальной машины, аргументы:\n!ip, times",
     "scan": "Функция для сканирования активных машин, аргументы:\n!ip(192.168.0.1-255), (провести сканирование портов?)",
 }
 functions = {
-    "connect": connect,
+    # "connect": connect,
     "scanport": scan_ports,
     "scannetwork": scan_network,
     "ping": ping,
@@ -199,12 +200,13 @@ def main():
                     functions[func_name]()
                 else:
                     functions[func_name](*args)
+        except KeyError:
+            print("Вызванной функции не существует")
         except:
             print("Произошла ошибка")
 
 
 if __name__ == "__main__":
-    scan_network("192.168.0.1-255")
     os.system("cls")
     os.system("color 2")
     print("""
